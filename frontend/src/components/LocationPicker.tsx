@@ -1,4 +1,4 @@
-import { joinLocations, malaysiaStates, MAX_LOCATION_SELECTIONS, parseLocations } from '../utils/locations'
+import { DEFAULT_LOCATION, joinLocations, malaysiaStates, MAX_LOCATION_SELECTIONS, parseLocations } from '../utils/locations'
 
 interface Props {
   value: string
@@ -6,7 +6,7 @@ interface Props {
 }
 
 export function LocationPicker({ value, onChange }: Props) {
-  const selected = parseLocations(value)
+  const selected = parseLocations(value).filter((item) => item !== DEFAULT_LOCATION)
   const atLimit = selected.length >= MAX_LOCATION_SELECTIONS
 
   function toggle(state: string) {
@@ -22,6 +22,9 @@ export function LocationPicker({ value, onChange }: Props) {
   return (
     <div>
       <div className="flex flex-wrap gap-1.5">
+        <span className="rounded-full border border-brand bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand-dark">
+          {DEFAULT_LOCATION}
+        </span>
         {malaysiaStates.map((state) => {
           const isSelected = selected.includes(state)
           const disabled = atLimit && !isSelected
@@ -45,7 +48,9 @@ export function LocationPicker({ value, onChange }: Props) {
           )
         })}
       </div>
-      <p className="mt-2 text-xs text-muted">Choose up to {MAX_LOCATION_SELECTIONS} states.</p>
+      <p className="mt-2 text-xs text-muted">
+        Always searches Malaysia. Choose up to {MAX_LOCATION_SELECTIONS} states to narrow.
+      </p>
     </div>
   )
 }

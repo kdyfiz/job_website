@@ -6,6 +6,10 @@ public sealed class JobSearchRequest
 {
     public string? Query { get; init; }
     public string? Location { get; init; }
+
+    public string EffectiveLocation =>
+        string.IsNullOrWhiteSpace(Location) ? "Malaysia" : Location.Trim();
+
     public ExperienceLevel ExperienceLevel { get; init; } = ExperienceLevel.Any;
     public WorkArrangement WorkArrangement { get; init; } = WorkArrangement.Any;
     public EmploymentType EmploymentType { get; init; } = EmploymentType.Any;

@@ -49,7 +49,7 @@ public sealed class JobMatchService : IJobMatchService
         var request = new JobSearchRequest
         {
             Query = searchRequest.Query,
-            Location = searchRequest.Location,
+            Location = searchRequest.EffectiveLocation,
             ExperienceLevel = searchRequest.ExperienceLevel,
             WorkArrangement = searchRequest.WorkArrangement,
             EmploymentType = searchRequest.EmploymentType,
@@ -74,7 +74,7 @@ public sealed class JobMatchService : IJobMatchService
             {
                 Total = matches.Count,
                 Query = request.Query?.Trim() ?? string.Empty,
-                Location = request.Location?.Trim(),
+                Location = request.EffectiveLocation,
                 UsingDemoData = matches.Count == 0 || matches.All(match =>
                     string.Equals(match.Job.Source, "Demo", StringComparison.OrdinalIgnoreCase)),
                 Jobs = matches.Select(match => JobMapper.ToResponse(match.Job, match)).ToList()

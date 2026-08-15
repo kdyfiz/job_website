@@ -57,7 +57,7 @@ export function JobsPage() {
     navigate(jobsPath(next))
   }
 
-  const summary = [params.query, params.location].filter(Boolean).join(' · ')
+  const summary = [params.query, params.location.trim() || 'Malaysia'].filter(Boolean).join(' · ')
 
   return (
     <div className="page-wrap py-8 sm:py-10">
@@ -71,7 +71,7 @@ export function JobsPage() {
         </p>
       ) : results ? (
         <p className="notice mt-4">
-          Live listings are remote roles from Himalayas (free public API). They are not JobStreet Malaysia ads. Apply on the original posting.
+          Live listings are Himalayas remote roles open to Malaysia. They are not JobStreet ads. Apply on the original posting.
         </p>
       ) : null}
 

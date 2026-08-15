@@ -53,6 +53,20 @@ public class JobSearchServiceTests
     }
 
     [Fact]
+    public async Task Missing_location_defaults_to_malaysia()
+    {
+        var result = await _service.SearchAsync(new JobSearchRequest
+        {
+            Query = "Junior Software Developer",
+            QueryRequired = true
+        });
+
+        Assert.Equal("Malaysia", result.Location);
+        Assert.True(result.Total > 0);
+        Assert.All(result.Jobs, job => Assert.Contains("Malaysia", job.Location, StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task Provider_failure_is_wrapped()
     {
         var failing = new JobSearchService(new FailingProvider(), NullLogger<JobSearchService>.Instance);

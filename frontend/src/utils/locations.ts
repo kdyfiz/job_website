@@ -1,3 +1,4 @@
+export const DEFAULT_LOCATION = 'Malaysia'
 export const MAX_LOCATION_SELECTIONS = 3
 
 export const malaysiaStates = [

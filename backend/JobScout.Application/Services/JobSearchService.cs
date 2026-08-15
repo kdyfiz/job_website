@@ -49,7 +49,7 @@ public sealed class JobSearchService : IJobSearchService
         {
             Total = sorted.Count,
             Query = request.Query?.Trim() ?? string.Empty,
-            Location = request.Location?.Trim(),
+            Location = request.EffectiveLocation,
             UsingDemoData = jobs.Count == 0 || jobs.All(job =>
                 string.Equals(job.Source, "Demo", StringComparison.OrdinalIgnoreCase)),
             Jobs = sorted.Select(job => JobMapper.ToResponse(job)).ToList()

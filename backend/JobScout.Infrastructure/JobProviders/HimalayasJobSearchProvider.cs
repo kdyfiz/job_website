@@ -9,6 +9,7 @@ using JobScout.Application.DTOs;
 using JobScout.Application.Interfaces;
 using JobScout.Domain.Enums;
 using JobScout.Domain.Models;
+using JobScout.Infrastructure.Matching;
 using Microsoft.Extensions.Logging;
 
 namespace JobScout.Infrastructure.JobProviders;
@@ -42,19 +43,15 @@ public sealed class HimalayasJobSearchProvider : IJobSearchProvider
         }
 
         var query = string.IsNullOrWhiteSpace(request.Query) ? "software" : request.Query.Trim();
-        var jobs = await FetchAsync(query, includeMalaysia: true, cancellationToken);
-
-        if (jobs.Count == 0)
-        {
-            jobs = await FetchAsync(query, includeMalaysia: false, cancellationToken);
-        }
+        var jobs = await FetchAsync(query, cancellationToken);
 
         foreach (var job in jobs)
         {
             _cache[job.Id] = job;
         }
 
-        IEnumerable<Job> results = jobs;
+        IEnumerable<Job> results = jobs.Where(job =>
+            LocationMatcher.Matches(job.Location, request.EffectiveLocation, job.WorkArrangement));
 
         if (request.ExperienceLevel != ExperienceLevel.Any)
         {
@@ -87,12 +84,9 @@ public sealed class HimalayasJobSearchProvider : IJobSearchProvider
 
     private async Task<IReadOnlyList<Job>> FetchAsync(
         string query,
-        bool includeMalaysia,
         CancellationToken cancellationToken)
     {
-        var path = includeMalaysia
-            ? $"/jobs/api/search?q={Uri.EscapeDataString(query)}&country=MY&sort=recent&page=1"
-            : $"/jobs/api/search?q={Uri.EscapeDataString(query)}&sort=recent&page=1";
+        var path = $"/jobs/api/search?q={Uri.EscapeDataString(query)}&country=MY&sort=recent&page=1";
 
         using var response = await _http.GetAsync(path, cancellationToken);
         if (!response.IsSuccessStatusCode)
@@ -176,9 +170,16 @@ public sealed class HimalayasJobSearchProvider : IJobSearchProvider
             return "Remote";
         }
 
-        if (restrictions.Any(place => place.Contains("Malaysia", StringComparison.OrdinalIgnoreCase)))
+        var malaysiaPlaces = restrictions
+            .Where(place => LocationMatcher.IsInMalaysia(place))
+            .ToList();
+
+        if (malaysiaPlaces.Count > 0)
         {
-            return "Malaysia (Remote)";
+            var state = malaysiaPlaces
+                .Select(LocationMatcher.ResolveState)
+                .FirstOrDefault(value => value is not null);
+            return state is not null ? $"{state}, Malaysia (Remote)" : "Malaysia (Remote)";
         }
 
         var shown = string.Join(", ", restrictions.Take(3));

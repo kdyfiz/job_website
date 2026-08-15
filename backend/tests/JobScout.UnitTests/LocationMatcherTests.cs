@@ -18,7 +18,7 @@ public class LocationMatcherTests
         Assert.False(LocationMatcher.Matches("Ipoh, Malaysia", "Kuala Lumpur", WorkArrangement.Remote));
         Assert.False(LocationMatcher.Matches("Kota Kinabalu, Malaysia", "Kuala Lumpur", WorkArrangement.Remote));
         Assert.False(LocationMatcher.Matches("Penang, Malaysia", "Kuala Lumpur", WorkArrangement.Hybrid));
-        Assert.False(LocationMatcher.Matches("Malaysia (Remote)", "Kuala Lumpur", WorkArrangement.Remote));
+        Assert.False(LocationMatcher.Matches("Malaysia (Remote)", "Kuala Lumpur", WorkArrangement.OnSite));
         Assert.False(LocationMatcher.Matches("Malaysia", "Kuala Lumpur", WorkArrangement.OnSite));
     }
 
@@ -38,10 +38,16 @@ public class LocationMatcherTests
     }
 
     [Fact]
-    public void Empty_location_does_not_filter()
+    public void Empty_or_malaysia_keeps_malaysian_jobs_only()
     {
         Assert.True(LocationMatcher.Matches("Kuching, Malaysia", null, WorkArrangement.OnSite));
         Assert.True(LocationMatcher.Matches("Ipoh, Malaysia", "", WorkArrangement.Remote));
+        Assert.True(LocationMatcher.Matches("Malaysia (Remote)", "Malaysia", WorkArrangement.Remote));
+        Assert.True(LocationMatcher.Matches("Malaysia (Remote)", "Kuala Lumpur", WorkArrangement.Remote));
+        Assert.False(LocationMatcher.Matches("Remote", null, WorkArrangement.Remote));
+        Assert.False(LocationMatcher.Matches("United States (Remote)", "", WorkArrangement.Remote));
+        Assert.False(LocationMatcher.Matches("Berlin, Germany", "Malaysia", WorkArrangement.OnSite));
+        Assert.False(LocationMatcher.Matches("Remote", "Kuala Lumpur", WorkArrangement.Remote));
     }
 
     [Fact]

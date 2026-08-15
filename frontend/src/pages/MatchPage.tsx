@@ -45,7 +45,7 @@ export function MatchPage() {
         <p className="eyebrow">Optional</p>
         <h1 className="display mt-3 text-4xl text-ink">Match my CV</h1>
         <p className="mt-3 text-base leading-7 text-muted">
-          Upload a PDF, choose up to 3 states, then search. Skills are matched in memory and the file is discarded.
+          Upload a PDF. Search defaults to Malaysia; choose up to 3 states to narrow. Skills are matched in memory and the file is discarded.
           Match scores are estimates, not a hiring decision.
         </p>
       </div>

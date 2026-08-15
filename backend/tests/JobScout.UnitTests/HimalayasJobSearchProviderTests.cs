@@ -52,9 +52,9 @@ public class HimalayasJobSearchProviderTests
     public async Task Search_returns_mapped_jobs_from_json()
     {
         var json = """
-            {"jobs":[{"title":"Backend Engineer","companyName":"Globex","description":"C#","employmentType":"Full Time","seniority":["Mid Level"],"locationRestrictions":[],"categories":["backend"],"applicationLink":"https://example.com/apply","guid":"g1","pubDate":1700000000}]}
+            {"jobs":[{"title":"Backend Engineer","companyName":"Globex","description":"C#","employmentType":"Full Time","seniority":["Mid Level"],"locationRestrictions":["Malaysia"],"categories":["backend"],"applicationLink":"https://example.com/apply","guid":"g1","pubDate":1700000000}]}
             """;
-        var provider = CreateProvider(json);
+        var (provider, handler) = CreateProvider(json);
 
         var results = await provider.SearchAsync(new JobSearchRequest
         {
@@ -65,6 +65,8 @@ public class HimalayasJobSearchProviderTests
         var job = Assert.Single(results);
         Assert.Equal("Backend Engineer", job.Title);
         Assert.Equal("Himalayas", job.Source);
+        Assert.Equal("Malaysia (Remote)", job.Location);
+        Assert.Contains("country=MY", handler.LastPath, StringComparison.Ordinal);
 
         var byId = await provider.GetByIdAsync(job.Id);
         Assert.Equal(job.Title, byId?.Title);
@@ -73,7 +75,7 @@ public class HimalayasJobSearchProviderTests
     [Fact]
     public async Task On_site_filter_returns_no_live_jobs()
     {
-        var provider = CreateProvider("""{"jobs":[{"title":"Remote Dev","companyName":"Acme"}]}""");
+        var (provider, _) = CreateProvider("""{"jobs":[{"title":"Remote Dev","companyName":"Acme"}]}""");
 
         var results = await provider.SearchAsync(new JobSearchRequest
         {
@@ -85,14 +87,37 @@ public class HimalayasJobSearchProviderTests
         Assert.Empty(results);
     }
 
-    private static HimalayasJobSearchProvider CreateProvider(string json)
+    [Fact]
+    public async Task Search_drops_jobs_not_open_to_malaysia()
+    {
+        var json = """
+            {"jobs":[
+              {"title":"Worldwide Dev","companyName":"Globex","description":"Go","locationRestrictions":[],"applicationLink":"https://example.com/world","guid":"w1"},
+              {"title":"US Dev","companyName":"Acme","description":"Go","locationRestrictions":["United States"],"applicationLink":"https://example.com/us","guid":"u1"},
+              {"title":"MY Dev","companyName":"Local","description":"Go","locationRestrictions":["Malaysia"],"applicationLink":"https://example.com/my","guid":"m1"}
+            ]}
+            """;
+        var (provider, _) = CreateProvider(json);
+
+        var results = await provider.SearchAsync(new JobSearchRequest
+        {
+            Query = "dev",
+            QueryRequired = true
+        });
+
+        var job = Assert.Single(results);
+        Assert.Equal("MY Dev", job.Title);
+        Assert.Equal("Malaysia (Remote)", job.Location);
+    }
+
+    private static (HimalayasJobSearchProvider Provider, StubHandler Handler) CreateProvider(string json)
     {
         var handler = new StubHandler(json);
         var http = new HttpClient(handler)
         {
             BaseAddress = new Uri("https://himalayas.app")
         };
-        return new HimalayasJobSearchProvider(http, NullLogger<HimalayasJobSearchProvider>.Instance);
+        return (new HimalayasJobSearchProvider(http, NullLogger<HimalayasJobSearchProvider>.Instance), handler);
     }
 
     private sealed class StubHandler : HttpMessageHandler
@@ -101,10 +126,13 @@ public class HimalayasJobSearchProviderTests
 
         public StubHandler(string json) => _json = json;
 
+        public string LastPath { get; private set; } = string.Empty;
+
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
+            LastPath = request.RequestUri?.PathAndQuery ?? string.Empty;
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(_json, Encoding.UTF8, "application/json")

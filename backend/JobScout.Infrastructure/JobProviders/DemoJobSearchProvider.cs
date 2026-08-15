@@ -35,11 +35,8 @@ public sealed class DemoJobSearchProvider : IJobSearchProvider
                 job.Skills.Any(skill => skill.Contains(query, StringComparison.OrdinalIgnoreCase)));
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Location))
-        {
-            results = results.Where(job =>
-                LocationMatcher.Matches(job.Location, request.Location, job.WorkArrangement));
-        }
+        results = results.Where(job =>
+            LocationMatcher.Matches(job.Location, request.EffectiveLocation, job.WorkArrangement));
 
         if (request.ExperienceLevel != ExperienceLevel.Any)
         {

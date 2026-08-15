@@ -41,28 +41,44 @@ public static class LocationMatcher
 
     public static bool Matches(string jobLocation, string? requested, WorkArrangement? workArrangement)
     {
-        _ = workArrangement;
         var selected = SelectedStates(requested);
         if (selected.Count == 0)
+        {
+            return IsInMalaysia(jobLocation);
+        }
+
+        var jobState = ResolveState(jobLocation);
+        if (jobState is not null && selected.Contains(jobState))
         {
             return true;
         }
 
-        var jobState = ResolveState(jobLocation);
-        return jobState is not null && selected.Contains(jobState);
+        return workArrangement == WorkArrangement.Remote && IsMalaysiaCountryLevel(jobLocation);
     }
 
     public static double Score(string jobLocation, string? requested, WorkArrangement? workArrangement)
     {
-        _ = workArrangement;
-        var selected = SelectedStates(requested);
-        if (selected.Count == 0)
+        if (Matches(jobLocation, requested, workArrangement))
         {
-            return 0.5;
+            return SelectedStates(requested).Count == 0 ? 0.8 : 1.0;
         }
 
-        var jobState = ResolveState(jobLocation);
-        return jobState is not null && selected.Contains(jobState) ? 1.0 : 0.2;
+        return 0.2;
+    }
+
+    public static bool IsInMalaysia(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return false;
+        }
+
+        if (ResolveState(text) is not null)
+        {
+            return true;
+        }
+
+        return ContainsPlace(text, "Malaysia") || Regex.IsMatch(text, @"\bMY\b", RegexOptions.IgnoreCase);
     }
 
     public static string? ResolveState(string? text)
@@ -106,6 +122,11 @@ public static class LocationMatcher
         }
 
         return selected;
+    }
+
+    private static bool IsMalaysiaCountryLevel(string? text)
+    {
+        return IsInMalaysia(text) && ResolveState(text) is null;
     }
 
     private static bool ContainsPlace(string haystack, string needle)
