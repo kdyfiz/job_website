@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="JobScout.IntegrationTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JobScout.Application\JobScout.Application.csproj" />
+    <ProjectReference Include="..\JobScout.Infrastructure\JobScout.Infrastructure.csproj" />
+    <ProjectReference Include="..\JobScout.Domain\JobScout.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

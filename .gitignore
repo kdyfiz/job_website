@@ -1,0 +1,26 @@
+# JobScout
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+
+# Frontend
+node_modules/
+dist/
+frontend/dist/
+
+# Env
+.env
+.env.local
+frontend/.env
+frontend/.env.local
+
+# OS / IDE
+.DS_Store
+.idea/
+*.log
+
+# .NET install leftovers
+*.tar.gz
