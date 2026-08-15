@@ -11,11 +11,20 @@ node_modules/
 dist/
 frontend/dist/
 
-# Env
+# Env and secrets — never commit real values
 .env
-.env.local
+.env.*
+!.env.example
+!**/.env.example
 frontend/.env
 frontend/.env.local
+.dev.vars
+.wrangler/
+*.pem
+*.key
+*.p12
+credentials.json
+secrets.json
 
 # OS / IDE
 .DS_Store
