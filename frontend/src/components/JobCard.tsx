@@ -7,6 +7,7 @@ import {
   labelExperience,
   labelWork,
 } from '../utils/labels'
+import { CompanyMark } from './CompanyMark'
 import { MatchScore } from './MatchScore'
 import { SkillBadge } from './SkillBadge'
 
@@ -16,75 +17,82 @@ interface Props {
 }
 
 export function JobCard({ job, showMatch = false }: Props) {
-  const originalHref = job.isDemoData || !job.sourceUrl ? '/about#demo-data' : job.sourceUrl
-  const originalLabel = job.isDemoData ? 'Demo listing' : 'View Original Job'
+  const originalHref = !job.isDemoData && job.sourceUrl ? job.sourceUrl : null
+  const meta = [
+    job.location,
+    labelWork(job.workArrangement),
+    labelEmployment(job.employmentType),
+    labelExperience(job.experienceLevel),
+  ].filter(Boolean) as string[]
 
   return (
-    <article className="rounded-2xl border border-line bg-white p-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-        <div className="min-w-0">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            {job.isDemoData && (
-              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-800">
-                Demo data
-              </span>
-            )}
-            <span className="text-xs text-muted">{job.source}</span>
+    <article className="card card-hover p-5 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 gap-3">
+          <CompanyMark name={job.company} />
+          <div className="min-w-0">
+            <div className="mb-1.5 flex flex-wrap items-center gap-2">
+              {job.isDemoData && <span className="chip text-amber">Demo</span>}
+              <span className="text-xs text-muted">{job.source}</span>
+            </div>
+            <h2 className="text-lg font-semibold tracking-tight text-ink">
+              <Link to={`/jobs/${job.id}`} className="text-ink no-underline hover:text-brand">
+                {job.title}
+              </Link>
+            </h2>
+            <p className="mt-0.5 text-sm text-muted">{job.company}</p>
           </div>
-          <h2 className="text-lg font-semibold text-ink">{job.title}</h2>
-          <p className="mt-1 text-sm text-slate-600">{job.company}</p>
-          <p className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-600">
-            <span>{job.location}</span>
-            {labelWork(job.workArrangement) && <span>{labelWork(job.workArrangement)}</span>}
-            {labelEmployment(job.employmentType) && <span>{labelEmployment(job.employmentType)}</span>}
-            {labelExperience(job.experienceLevel) && <span>{labelExperience(job.experienceLevel)}</span>}
-          </p>
-          <p className="mt-2 text-xs text-muted">
-            {formatPostedDate(job.postedDate) ?? 'Posted date unavailable'} · {labelAvailability(job.availabilityStatus)} ·
-            Verify on original listing
-          </p>
         </div>
         {showMatch && job.estimatedMatchPercent != null && (
           <MatchScore percent={job.estimatedMatchPercent} compact />
         )}
       </div>
 
+      <div className="mt-4 flex flex-wrap gap-1.5">
+        {meta.map((item) => (
+          <span key={item} className="chip">
+            {item}
+          </span>
+        ))}
+      </div>
+
+      {job.salary?.display && <p className="mt-3 text-sm font-medium text-ink">{job.salary.display}</p>}
+
+      <p className="mt-3 text-xs leading-5 text-muted">
+        {formatPostedDate(job.postedDate) ?? 'Posted date unavailable'} · {labelAvailability(job.availabilityStatus)} ·
+        Verify on original listing
+      </p>
+
       {showMatch && job.match && (
-        <div className="mt-4 grid gap-3 text-sm">
+        <div className="mt-4 grid gap-3 border-t border-line pt-4 text-sm">
           {job.match.matchingSkills.length > 0 && (
-            <p>
-              <span className="font-medium text-slate-700">Skills: </span>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-medium text-muted">Matching</span>
               {job.match.matchingSkills.map((skill) => (
                 <SkillBadge key={skill} skill={skill} tone="match" />
               ))}
-            </p>
+            </div>
           )}
           {job.match.missingSkills.length > 0 && (
-            <p className="flex flex-wrap items-center gap-1">
-              <span className="font-medium text-slate-700">Potential gaps:</span>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-medium text-muted">Potential gaps</span>
               {job.match.missingSkills.map((skill) => (
                 <SkillBadge key={skill} skill={skill} tone="gap" />
               ))}
-            </p>
+            </div>
           )}
         </div>
       )}
 
       <div className="mt-5 flex flex-wrap gap-2">
-        <Link
-          to={`/jobs/${job.id}`}
-          className="inline-flex h-10 items-center rounded-lg bg-brand px-4 text-sm font-semibold text-white no-underline hover:bg-brand-dark"
-        >
-          View Details
+        <Link to={`/jobs/${job.id}`} className="btn-primary h-10">
+          View details
         </Link>
-        <a
-          href={originalHref}
-          target={job.isDemoData ? undefined : '_blank'}
-          rel={job.isDemoData ? undefined : 'noreferrer'}
-          className="inline-flex h-10 items-center rounded-lg border border-line px-4 text-sm font-semibold text-slate-700 no-underline hover:bg-slate-50"
-        >
-          {originalLabel}
-        </a>
+        {originalHref && (
+          <a href={originalHref} target="_blank" rel="noreferrer" className="btn-secondary h-10">
+            View original
+          </a>
+        )}
       </div>
     </article>
   )

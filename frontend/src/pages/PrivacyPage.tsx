@@ -1,15 +1,37 @@
+const points = [
+  {
+    title: 'Passwords',
+    body: 'JobScout does not collect passwords or login credentials.',
+  },
+  {
+    title: 'Temporary CV processing',
+    body: 'CV uploads are processed in memory while a request is handled. JobScout V1 does not write uploaded files to disk or a database.',
+  },
+  {
+    title: 'Verify listings',
+    body: 'Job availability may change. Users should verify information on the original listing.',
+  },
+  {
+    title: 'Minimal data',
+    body: 'No unnecessary personal information should be collected.',
+  },
+]
+
 export function PrivacyPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight text-ink">Privacy</h1>
-      <div className="mt-6 grid gap-4 text-slate-700">
-        <p>No account is required. No password is collected.</p>
-        <p>CV uploads are processed temporarily in memory while a request is handled.</p>
-        <p>CVs should not be permanently stored. JobScout V1 does not write uploaded files to disk or a database.</p>
-        <p>Job information comes from external sources or, in V1, clearly labelled demo data.</p>
-        <p>Job availability may change. Users should verify information on the original listing.</p>
-        <p>JobScout does not guarantee employment. Match scores are estimates.</p>
-        <p>No unnecessary personal information should be collected.</p>
+    <div className="page-wrap max-w-3xl py-12 sm:py-16">
+      <p className="eyebrow">Privacy</p>
+      <h1 className="display mt-3 text-4xl text-ink">How JobScout handles information.</h1>
+      <p className="mt-4 text-base leading-7 text-muted">
+        The product is built to stay useful without storing a profile. Read this page before you upload a CV.
+      </p>
+      <div className="mt-6">
+        {points.map((point, index) => (
+          <section key={point.title} className={index === 0 ? 'pb-4' : 'border-t border-line py-4'}>
+            <h2 className="text-sm font-semibold text-ink">{point.title}</h2>
+            <p className="mt-1.5 text-[15px] leading-7 text-muted">{point.body}</p>
+          </section>
+        ))}
       </div>
     </div>
   )

@@ -5,12 +5,16 @@ interface Props {
 
 export function MatchScore({ percent, compact = false }: Props) {
   const tone =
-    percent >= 80 ? 'text-teal-800 bg-teal-50' : percent >= 60 ? 'text-amber-800 bg-amber-50' : 'text-slate-700 bg-slate-100'
+    percent >= 80
+      ? 'bg-brand-soft text-brand-dark'
+      : percent >= 60
+        ? 'bg-[#f4ead4] text-[#7a5600]'
+        : 'bg-surface text-muted'
 
   return (
-    <div className={`rounded-lg px-3 py-2 ${tone}`}>
-      <p className="text-[11px] font-medium uppercase tracking-wide opacity-80">Estimated match</p>
-      <p className={`font-semibold ${compact ? 'text-lg' : 'text-2xl'}`}>{percent}%</p>
+    <div className={`shrink-0 rounded-xl px-3.5 py-2 text-right ${tone}`}>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] opacity-80">Est. match</p>
+      <p className={`font-semibold tabular-nums tracking-tight ${compact ? 'text-xl' : 'text-3xl'}`}>{percent}%</p>
     </div>
   )
 }

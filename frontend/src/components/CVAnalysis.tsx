@@ -7,9 +7,11 @@ interface Props {
 
 export function CVAnalysisPanel({ analysis }: Props) {
   return (
-    <section className="rounded-2xl border border-line bg-white p-5">
-      <h2 className="text-lg font-semibold text-ink">Your CV</h2>
-      <p className="mt-1 text-sm text-muted">{analysis.skillCount} skills detected</p>
+    <section className="card p-5 sm:p-6">
+      <div className="flex items-end justify-between gap-3">
+        <h2 className="text-base font-semibold text-ink">Detected from your CV</h2>
+        <p className="text-sm text-muted">{analysis.skillCount} skills</p>
+      </div>
       <div className="mt-4 flex flex-wrap gap-2">
         {analysis.skills.length > 0 ? (
           analysis.skills.map((skill) => <SkillBadge key={skill} skill={skill} tone="match" />)
@@ -18,8 +20,8 @@ export function CVAnalysisPanel({ analysis }: Props) {
         )}
       </div>
       {analysis.experienceIndicators.length > 0 && (
-        <div className="mt-4">
-          <h3 className="text-sm font-semibold text-slate-700">Experience indicators</h3>
+        <div className="mt-5 border-t border-line pt-4">
+          <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Experience indicators</h3>
           <div className="mt-2 flex flex-wrap gap-2">
             {analysis.experienceIndicators.map((item) => (
               <SkillBadge key={item} skill={item} />
@@ -27,7 +29,7 @@ export function CVAnalysisPanel({ analysis }: Props) {
           </div>
         </div>
       )}
-      {analysis.warning && <p className="mt-4 text-sm text-amber-800">{analysis.warning}</p>}
+      {analysis.warning && <p className="mt-4 text-sm text-amber">{analysis.warning}</p>}
     </section>
   )
 }

@@ -9,9 +9,9 @@ interface Props {
 
 export function JobFilters({ value, onChange, showMatchFilter = false }: Props) {
   return (
-    <aside className="rounded-2xl border border-line bg-white p-4">
-      <h2 className="text-sm font-semibold text-ink">Filters</h2>
-      <div className="mt-4 grid gap-3">
+    <aside className="card h-fit p-5 lg:sticky lg:top-24">
+      <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Filters</h2>
+      <div className="mt-4 grid gap-4">
         <FilterSelect
           label="Experience"
           value={value.experienceLevel}
@@ -61,13 +61,9 @@ function FilterSelect<T extends string>({
   onChange: (value: T) => void
 }) {
   return (
-    <label className="grid gap-1 text-sm font-medium text-slate-700">
+    <label className="label">
       {label}
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as T)}
-        className="h-10 rounded-lg border border-line bg-white px-3 font-normal text-ink"
-      >
+      <select value={value} onChange={(e) => onChange(e.target.value as T)} className="field">
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}

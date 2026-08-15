@@ -4,6 +4,7 @@ using JobScout.Application.DTOs;
 using JobScout.Application.Interfaces;
 using JobScout.Domain.Enums;
 using JobScout.Domain.Models;
+using JobScout.Infrastructure.Matching;
 
 namespace JobScout.Infrastructure.JobProviders;
 
@@ -36,10 +37,8 @@ public sealed class DemoJobSearchProvider : IJobSearchProvider
 
         if (!string.IsNullOrWhiteSpace(request.Location))
         {
-            var location = request.Location.Trim();
             results = results.Where(job =>
-                job.Location.Contains(location, StringComparison.OrdinalIgnoreCase) ||
-                job.WorkArrangement == WorkArrangement.Remote);
+                LocationMatcher.Matches(job.Location, request.Location, job.WorkArrangement));
         }
 
         if (request.ExperienceLevel != ExperienceLevel.Any)

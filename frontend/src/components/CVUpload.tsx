@@ -35,12 +35,26 @@ export function CVUpload({ onFile, disabled = false }: Props) {
     <div className="grid gap-2">
       <label
         htmlFor={inputId}
-        className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-white px-4 py-10 text-center"
+        className={`card flex cursor-pointer flex-col items-center justify-center border-dashed px-4 py-12 text-center transition ${
+          fileName ? 'border-brand bg-brand-soft/40' : 'hover:border-[#d4cec2]'
+        } ${disabled ? 'pointer-events-none opacity-60' : ''}`}
       >
-        <span className="text-sm font-semibold text-ink">Upload a PDF CV</span>
-        <span className="mt-1 text-sm text-muted">Maximum 5 MB. Processed temporarily — not stored.</span>
-        <span className="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white">Choose file</span>
-        {fileName && <span className="mt-3 text-sm text-slate-600">{fileName}</span>}
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-soft text-brand">
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+            <path
+              d="M12 16V8m0 0l-3 3m3-3l3 3M6 20h12"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+        <span className="mt-4 text-sm font-semibold text-ink">{fileName ? 'CV selected' : 'Upload a PDF CV'}</span>
+        <span className="mt-1 max-w-xs text-sm leading-6 text-muted">
+          {fileName ?? 'Maximum 5 MB. Processed for this request only — not stored.'}
+        </span>
+        <span className="btn-primary mt-5 h-10">{fileName ? 'Replace file' : 'Choose file'}</span>
       </label>
       <input
         id={inputId}
@@ -50,7 +64,7 @@ export function CVUpload({ onFile, disabled = false }: Props) {
         onChange={handleChange}
         disabled={disabled}
       />
-      {localError && <p className="text-sm text-red-700">{localError}</p>}
+      {localError && <p className="text-sm text-[#8a3a2b]">{localError}</p>}
     </div>
   )
 }

@@ -25,7 +25,7 @@ public static class JobSearchRequestValidator
             errors.Add("Job title is too long.");
         }
 
-        if (request.Location is { Length: > 120 })
+        if (request.Location is { Length: > 200 })
         {
             errors.Add("Location is too long.");
         }

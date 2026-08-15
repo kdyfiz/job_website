@@ -1,24 +1,29 @@
 import type { FormEvent } from 'react'
 import type { SearchParams } from '../types/job'
 import { experienceOptions, workOptions } from '../utils/labels'
+import { LocationPicker } from './LocationPicker'
 
 interface Props {
   value: SearchParams
   onChange: (value: SearchParams) => void
-  onSubmit: () => void
+  onSubmit: (value: SearchParams) => void
   compact?: boolean
 }
 
 export function SearchForm({ value, onChange, onSubmit, compact = false }: Props) {
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    onSubmit()
+    onSubmit({
+      ...value,
+      query: value.query.trim(),
+      location: value.location.trim(),
+    })
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-3">
-      <div className={`grid gap-3 ${compact ? 'md:grid-cols-2' : ''}`}>
-        <label className="grid gap-1 text-sm font-medium text-slate-700">
+    <form onSubmit={handleSubmit} className="grid gap-4">
+      <div className={compact ? 'grid gap-4 md:grid-cols-[1fr_auto] md:items-end' : 'grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end'}>
+        <label className="label">
           Job title / keywords
           <input
             required
@@ -26,28 +31,33 @@ export function SearchForm({ value, onChange, onSubmit, compact = false }: Props
             value={value.query}
             onChange={(e) => onChange({ ...value, query: e.target.value })}
             placeholder="Junior Software Developer"
-            className="h-12 rounded-lg border border-line bg-white px-3 text-base font-normal text-ink"
+            className="field h-12 text-[15px]"
           />
         </label>
-        <label className="grid gap-1 text-sm font-medium text-slate-700">
-          Location
-          <input
-            value={value.location}
-            onChange={(e) => onChange({ ...value, location: e.target.value })}
-            placeholder="Malaysia"
-            className="h-12 rounded-lg border border-line bg-white px-3 text-base font-normal text-ink"
-          />
-        </label>
+        {!compact && (
+          <button type="submit" className="btn-primary h-12 px-6 lg:min-w-36">
+            Find Jobs
+          </button>
+        )}
+        {compact && (
+          <button type="submit" className="btn-primary h-12 tracking-wide">
+            Find Jobs
+          </button>
+        )}
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="grid gap-1 text-sm font-medium text-slate-700">
-          Experience level
+      <div className="label">
+        Location
+        <LocationPicker value={value.location} onChange={(location) => onChange({ ...value, location })} />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="label">
+          Experience
           <select
             value={value.experienceLevel}
             onChange={(e) =>
               onChange({ ...value, experienceLevel: e.target.value as SearchParams['experienceLevel'] })
             }
-            className="h-12 rounded-lg border border-line bg-white px-3 text-base font-normal text-ink"
+            className="field h-12 text-[15px]"
           >
             {experienceOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -56,14 +66,14 @@ export function SearchForm({ value, onChange, onSubmit, compact = false }: Props
             ))}
           </select>
         </label>
-        <label className="grid gap-1 text-sm font-medium text-slate-700">
+        <label className="label">
           Work arrangement
           <select
             value={value.workArrangement}
             onChange={(e) =>
               onChange({ ...value, workArrangement: e.target.value as SearchParams['workArrangement'] })
             }
-            className="h-12 rounded-lg border border-line bg-white px-3 text-base font-normal text-ink"
+            className="field h-12 text-[15px]"
           >
             {workOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -73,12 +83,6 @@ export function SearchForm({ value, onChange, onSubmit, compact = false }: Props
           </select>
         </label>
       </div>
-      <button
-        type="submit"
-        className="h-12 rounded-lg bg-brand px-6 text-sm font-semibold tracking-wide text-white hover:bg-brand-dark"
-      >
-        Find Jobs
-      </button>
     </form>
   )
 }

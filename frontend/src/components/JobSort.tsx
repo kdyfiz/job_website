@@ -11,12 +11,12 @@ export function JobSort({ value, onChange, showHighestMatch = false }: Props) {
   const options = showHighestMatch ? sortOptions : sortOptions.filter((o) => o.value !== 'HighestMatch')
 
   return (
-    <label className="flex items-center gap-2 text-sm text-slate-600">
+    <label className="flex items-center gap-2 text-xs font-medium text-muted">
       Sort
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as JobSortOption)}
-        className="h-10 rounded-lg border border-line bg-white px-3 text-ink"
+        className="field h-10 w-auto min-w-40 text-sm text-ink"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

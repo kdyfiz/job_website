@@ -6,6 +6,7 @@ import { ErrorState } from '../components/ErrorState'
 import { JobFilters } from '../components/JobFilters'
 import { JobList } from '../components/JobList'
 import { LoadingState } from '../components/LoadingState'
+import { LocationPicker } from '../components/LocationPicker'
 import { defaultSearchParams, matchJobs } from '../services/api'
 import type { JobMatchResponse, SearchParams } from '../types/job'
 
@@ -27,9 +28,9 @@ export function MatchPage() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 250))
       setLoadingMessage('Matching your skills with available jobs...')
-      const payload = await matchJobs(file, next)
+      const payload = await matchJobs(file, { ...next, query: '' })
       setResult(payload)
-      setParams({ ...next, sort: 'HighestMatch' })
+      setParams({ ...next, query: '', sort: 'HighestMatch' })
     } catch (err: unknown) {
       setResult(null)
       setError(err instanceof Error ? err.message : "We couldn't process your CV.")
@@ -39,73 +40,64 @@ export function MatchPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="text-3xl font-semibold tracking-tight text-ink">Match my CV</h1>
-      <p className="mt-2 max-w-2xl text-slate-600">
-        Upload a PDF. JobScout extracts skills locally in the API process, scores demo jobs, then discards the file.
-      </p>
+    <div className="page-wrap py-10 sm:py-12">
+      <div className="max-w-2xl">
+        <p className="eyebrow">Optional</p>
+        <h1 className="display mt-3 text-4xl text-ink">Match my CV</h1>
+        <p className="mt-3 text-base leading-7 text-muted">
+          Upload a PDF, choose up to 3 states, then search. Skills are matched in memory and the file is discarded.
+          Match scores are estimates, not a hiring decision.
+        </p>
+      </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_1fr]">
+      <div className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <CVUpload onFile={setFile} disabled={Boolean(loadingMessage)} />
-        <div className="rounded-2xl border border-line bg-white p-5">
-          <h2 className="text-sm font-semibold text-ink">Optional search hints</h2>
-          <div className="mt-3 grid gap-3">
-            <input
-              value={params.query}
-              onChange={(e) => setParams({ ...params, query: e.target.value })}
-              placeholder="Job title / keywords (optional)"
-              className="h-11 rounded-lg border border-line px-3"
-            />
-            <input
+        <div className="card flex flex-col justify-center p-5 sm:p-6">
+          <p className="label">Location</p>
+          <div className="mt-1.5">
+            <LocationPicker
               value={params.location}
-              onChange={(e) => setParams({ ...params, location: e.target.value })}
-              placeholder="Location (optional)"
-              className="h-11 rounded-lg border border-line px-3"
+              onChange={(location) => setParams({ ...params, location })}
             />
-            <button
-              type="button"
-              onClick={() => void runMatch()}
-              className="h-11 rounded-lg bg-brand text-sm font-semibold text-white hover:bg-brand-dark"
-            >
-              Match My CV
-            </button>
           </div>
+          <button
+            type="button"
+            onClick={() => void runMatch()}
+            className="btn-primary mt-4"
+            disabled={!file || Boolean(loadingMessage)}
+          >
+            Search based on my CV
+          </button>
+          {!file && <p className="mt-3 text-sm text-muted">Upload a PDF first, then search.</p>}
         </div>
       </div>
 
-      <p className="mt-4 text-sm text-muted">
-        Match scores are estimates based on information detected from your CV and the job listing. They are not a
-        guarantee of suitability or employment.
-      </p>
-
       {loadingMessage && (
-        <div className="mt-6">
+        <div className="mt-8">
           <LoadingState message={loadingMessage} />
         </div>
       )}
       {error && (
-        <div className="mt-6">
+        <div className="mt-8">
           <ErrorState message={error} />
         </div>
       )}
 
       {result && !loadingMessage && (
-        <div className="mt-8 grid gap-6 lg:grid-cols-[240px_1fr]">
+        <div className="mt-10 grid gap-6 lg:grid-cols-[260px_1fr]">
           <JobFilters value={params} onChange={(next) => void runMatch(next)} showMatchFilter />
           <div className="grid gap-4">
             <CVAnalysisPanel analysis={result.cv} />
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-xl font-semibold text-ink">Recommended jobs</h2>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+              <h2 className="text-xl font-semibold tracking-tight text-ink">Recommended jobs</h2>
               <p className="text-sm text-muted">Sorted by estimated match</p>
             </div>
             {result.results.usingDemoData && (
-              <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                Recommended jobs below are demo data, not live listings.
-              </p>
+              <p className="notice">Recommended jobs below are demo data, not live listings.</p>
             )}
             {result.results.jobs.length === 0 ? (
               <EmptyState title="No recommended jobs.">
-                Try fewer filters or a broader keyword.
+                Try fewer filters or another location.
               </EmptyState>
             ) : (
               <JobList jobs={result.results.jobs} showMatch />

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { CompanyMark } from '../components/CompanyMark'
 import { ErrorState } from '../components/ErrorState'
 import { LoadingState } from '../components/LoadingState'
 import { MatchScore } from '../components/MatchScore'
@@ -41,7 +42,7 @@ export function JobDetailsPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="page-wrap max-w-5xl py-10">
         <LoadingState message="Loading job details..." />
       </div>
     )
@@ -49,73 +50,91 @@ export function JobDetailsPage() {
 
   if (error || !job) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="page-wrap max-w-3xl py-10">
         <ErrorState message={error ?? 'We could not find that job listing.'} />
-        <Link to="/jobs" className="mt-4 inline-block text-sm font-semibold text-brand">
+        <Link to="/jobs" className="btn-ghost mt-4">
           Back to results
         </Link>
       </div>
     )
   }
 
-  const originalHref = job.isDemoData || !job.sourceUrl ? '/about#demo-data' : job.sourceUrl
+  const originalHref = !job.isDemoData && job.sourceUrl ? job.sourceUrl : null
+  const meta = [
+    job.location,
+    labelWork(job.workArrangement),
+    labelEmployment(job.employmentType),
+    labelExperience(job.experienceLevel),
+  ].filter(Boolean) as string[]
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      {job.isDemoData && (
-        <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-          This is demo data, not a live job listing.
-        </p>
-      )}
-      <p className="text-sm text-muted">{job.company}</p>
-      <h1 className="mt-1 text-3xl font-semibold tracking-tight text-ink">{job.title}</h1>
-      <p className="mt-3 text-slate-600">
-        {job.location}
-        {labelWork(job.workArrangement) ? ` · ${labelWork(job.workArrangement)}` : ''}
-        {labelEmployment(job.employmentType) ? ` · ${labelEmployment(job.employmentType)}` : ''}
-        {labelExperience(job.experienceLevel) ? ` · ${labelExperience(job.experienceLevel)}` : ''}
-      </p>
-      <p className="mt-2 text-sm text-muted">
-        {formatPostedDate(job.postedDate) ?? 'Posted date unavailable'} · {labelAvailability(job.availabilityStatus)} ·
-        Verify on original listing
-      </p>
+    <div className="page-wrap max-w-5xl py-10">
+      <Link to="/jobs" className="text-sm font-medium text-muted no-underline hover:text-ink">
+        ← Back to results
+      </Link>
 
-      {job.estimatedMatchPercent != null && (
-        <div className="mt-4 max-w-xs">
-          <MatchScore percent={job.estimatedMatchPercent} />
-        </div>
-      )}
+      {job.isDemoData && <p className="notice mt-5">This is demo data, not a live job listing.</p>}
 
-      {job.salary?.display && (
-        <p className="mt-4 text-sm font-medium text-ink">Salary: {job.salary.display}</p>
-      )}
+      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_280px] lg:items-start">
+        <div>
+          <div className="flex gap-4">
+            <CompanyMark name={job.company} className="h-12 w-12 text-base" />
+            <div>
+              <p className="text-sm font-medium text-muted">{job.company}</p>
+              <h1 className="display mt-1 text-3xl text-ink sm:text-4xl">{job.title}</h1>
+            </div>
+          </div>
 
-      <section className="mt-8">
-        <h2 className="text-lg font-semibold">Description</h2>
-        <p className="mt-2 whitespace-pre-wrap text-slate-700">{job.description}</p>
-      </section>
-
-      {job.skills.length > 0 && (
-        <section className="mt-8">
-          <h2 className="text-lg font-semibold">Required skills</h2>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {job.skills.map((skill) => (
-              <SkillBadge key={skill} skill={skill} />
+          <div className="mt-5 flex flex-wrap gap-1.5">
+            {meta.map((item) => (
+              <span key={item} className="chip">
+                {item}
+              </span>
             ))}
           </div>
-        </section>
-      )}
 
-      <p className="mt-8 text-sm text-muted">Source: {job.source}</p>
+          <p className="mt-4 text-sm text-muted">
+            {formatPostedDate(job.postedDate) ?? 'Posted date unavailable'} · {labelAvailability(job.availabilityStatus)}{' '}
+            · Verify on original listing
+          </p>
 
-      <a
-        href={originalHref}
-        target={job.isDemoData ? undefined : '_blank'}
-        rel={job.isDemoData ? undefined : 'noreferrer'}
-        className="mt-6 inline-flex h-11 items-center rounded-lg bg-brand px-5 text-sm font-semibold text-white no-underline hover:bg-brand-dark"
-      >
-        {job.isDemoData ? 'About demo listings' : 'View Original Job'}
-      </a>
+          <section className="mt-10 border-t border-line pt-8">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted">Description</h2>
+            <p className="mt-3 whitespace-pre-wrap text-[15px] leading-7 text-ink/90">{job.description}</p>
+          </section>
+
+          {job.skills.length > 0 && (
+            <section className="mt-10">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted">Required skills</h2>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {job.skills.map((skill) => (
+                  <SkillBadge key={skill} skill={skill} />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+
+        <aside className="card h-fit p-5 lg:sticky lg:top-24">
+          {job.estimatedMatchPercent != null && (
+            <div className="mb-4">
+              <MatchScore percent={job.estimatedMatchPercent} />
+            </div>
+          )}
+          {job.salary?.display && (
+            <p className="text-sm font-semibold text-ink">{job.salary.display}</p>
+          )}
+          <p className="mt-2 text-sm text-muted">Source: {job.source}</p>
+          {originalHref && (
+            <a href={originalHref} target="_blank" rel="noreferrer" className="btn-primary mt-5 w-full">
+              View original job
+            </a>
+          )}
+          <p className="mt-3 text-xs leading-5 text-muted">
+            JobScout does not host applications. Always confirm details on the original listing.
+          </p>
+        </aside>
+      </div>
     </div>
   )
 }

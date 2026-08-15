@@ -41,7 +41,7 @@ public sealed class MatchEngine : IMatchEngine
         }
 
         var (experienceScore, experienceExplanation) = ScoreExperience(profile, job);
-        var locationScore = ScoreLocation(job, location);
+        var locationScore = LocationMatcher.Score(job.Location, location, job.WorkArrangement);
         var keywordScore = ScoreKeywords(job, query);
 
         var weighted =
@@ -139,33 +139,6 @@ public sealed class MatchEngine : IMatchEngine
             ExperienceLevel.ThreeToFiveYears => "Listing indicates around 3–5 years of experience.",
             _ => null
         };
-    }
-
-    private static double ScoreLocation(Job job, string? location)
-    {
-        if (job.WorkArrangement == WorkArrangement.Remote)
-        {
-            return 1.0;
-        }
-
-        if (string.IsNullOrWhiteSpace(location))
-        {
-            return 0.5;
-        }
-
-        var requested = location.Trim();
-        if (job.Location.Contains(requested, StringComparison.OrdinalIgnoreCase) ||
-            requested.Contains(job.Location, StringComparison.OrdinalIgnoreCase))
-        {
-            return 1.0;
-        }
-
-        if (ContainsAny(job.Location, "malaysia") && ContainsAny(requested, "malaysia"))
-        {
-            return 0.8;
-        }
-
-        return 0.2;
     }
 
     private static double ScoreKeywords(Job job, string? query)

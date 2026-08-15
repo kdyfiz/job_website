@@ -1,29 +1,34 @@
 export function AboutPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight text-ink">About JobScout</h1>
-      <p className="mt-4 text-slate-700">
-        JobScout is a free job discovery tool designed to make searching for relevant job opportunities easier.
+    <div className="page-wrap max-w-3xl py-12 sm:py-16">
+      <p className="eyebrow">About</p>
+      <h1 className="display mt-3 text-4xl text-ink">JobScout is a free job discovery tool.</h1>
+      <p className="mt-5 text-base leading-7 text-muted">
+        It is designed to make searching for relevant opportunities easier, then send you to the original listing to apply.
       </p>
-      <ul className="mt-6 grid gap-2 text-slate-700">
-        <li>Search jobs</li>
-        <li>Filter results</li>
-        <li>Optional CV matching</li>
-        <li>Estimated skill matching</li>
-        <li>No account required</li>
-        <li>Free to use</li>
-      </ul>
-      <p className="mt-6 text-slate-700">
-        Users are redirected to original job sources to apply. JobScout does not provide an internal application system.
+
+      <div className="mt-10 grid gap-6 sm:grid-cols-2">
+        <section className="card p-5">
+          <h2 className="text-sm font-semibold text-ink">What it does</h2>
+          <ul className="mt-3 grid gap-2 text-sm leading-6 text-muted">
+            <li>Search jobs by title, location, and experience</li>
+            <li>Filter and sort results</li>
+            <li>Optionally match a PDF CV</li>
+            <li>Show estimated skill overlap and gaps</li>
+          </ul>
+        </section>
+        <section className="card p-5">
+          <h2 className="text-sm font-semibold text-ink">What it does not do</h2>
+          <ul className="mt-3 grid gap-2 text-sm leading-6 text-muted">
+            <li>No saved profiles</li>
+            <li>No guarantee of employment</li>
+          </ul>
+        </section>
+      </div>
+
+      <p className="mt-8 text-[15px] leading-7 text-muted">
+        You are redirected to original job sources to apply.
       </p>
-      <section id="demo-data" className="mt-10 scroll-mt-24 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-        <h2 className="text-lg font-semibold text-ink">Demo listings</h2>
-        <p className="mt-2 text-sm text-slate-700">
-          V1 ships with a Demo job provider. Sample roles are clearly labelled as demo data so the product can be used
-          and reviewed without paid job APIs. They are not live vacancies. Always treat the original source as the
-          authority when live providers are added later.
-        </p>
-      </section>
     </div>
   )
 }

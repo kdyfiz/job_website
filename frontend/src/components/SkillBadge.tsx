@@ -5,10 +5,14 @@ interface Props {
 
 export function SkillBadge({ skill, tone = 'default' }: Props) {
   const styles = {
-    default: 'bg-slate-100 text-slate-700',
-    match: 'bg-teal-50 text-teal-800',
-    gap: 'bg-amber-50 text-amber-900',
+    default: 'border-line bg-paper text-ink',
+    match: 'border-transparent bg-brand-soft text-brand-dark',
+    gap: 'border-transparent bg-[#f4ead4] text-[#7a5600]',
   }[tone]
 
-  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${styles}`}>{skill}</span>
+  return (
+    <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${styles}`}>
+      {skill}
+    </span>
+  )
 }
