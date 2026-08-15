@@ -5,8 +5,15 @@ using JobScout.API.Middleware;
 using JobScout.Application.Options;
 using JobScout.Infrastructure;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -29,14 +36,22 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddJobScoutInfrastructure(builder.Configuration);
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var corsSettings = builder.Configuration.GetSection(CorsSettings.SectionName).Get<CorsSettings>()
     ?? new CorsSettings();
+var allowedOrigins = corsSettings.AllowedOrigins;
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("frontend", policy =>
     {
-        policy.WithOrigins(corsSettings.AllowedOrigins)
+        policy.SetIsOriginAllowed(origin => IsAllowedOrigin(origin, allowedOrigins))
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -86,6 +101,7 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseSwagger();
@@ -100,5 +116,26 @@ app.UseRateLimiter();
 app.MapControllers();
 
 app.Run();
+
+static bool IsAllowedOrigin(string origin, string[] allowedOrigins)
+{
+    if (string.IsNullOrWhiteSpace(origin) || !Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+    {
+        return false;
+    }
+
+    if (allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+    {
+        return true;
+    }
+
+    if (uri.Scheme is "http" && uri.Host is "localhost" or "127.0.0.1")
+    {
+        return true;
+    }
+
+    return uri.Scheme == "https"
+        && uri.Host.EndsWith(".pages.dev", StringComparison.OrdinalIgnoreCase);
+}
 
 public partial class Program;

@@ -10,6 +10,18 @@ import type {
 import { parseApiError } from '../utils/errors'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''
+const API_TIMEOUT_MS = 90_000
+
+async function apiFetch(input: string, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, { ...init, signal: AbortSignal.timeout(API_TIMEOUT_MS) })
+  } catch (error) {
+    if (error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
+      throw new Error('The server is waking up. Please try the search again in a moment.')
+    }
+    throw new Error('Could not reach JobScout. Please try again.')
+  }
+}
 
 async function readJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -28,19 +40,19 @@ export async function searchJobs(params: SearchParams): Promise<JobSearchRespons
   if (params.datePosted !== 'Any') query.set('datePosted', params.datePosted)
   if (params.sort !== 'MostRelevant') query.set('sort', params.sort)
 
-  const response = await fetch(`${API_BASE}/api/jobs/search?${query.toString()}`)
+  const response = await apiFetch(`${API_BASE}/api/jobs/search?${query.toString()}`)
   return readJson<JobSearchResponse>(response)
 }
 
 export async function getJob(id: string): Promise<Job> {
-  const response = await fetch(`${API_BASE}/api/jobs/${encodeURIComponent(id)}`)
+  const response = await apiFetch(`${API_BASE}/api/jobs/${encodeURIComponent(id)}`)
   return readJson<Job>(response)
 }
 
 export async function analyzeCv(file: File): Promise<CVAnalysis> {
   const body = new FormData()
   body.append('file', file)
-  const response = await fetch(`${API_BASE}/api/cv/analyze`, { method: 'POST', body })
+  const response = await apiFetch(`${API_BASE}/api/cv/analyze`, { method: 'POST', body })
   return readJson<CVAnalysis>(response)
 }
 
@@ -58,7 +70,7 @@ export async function matchJobs(
   if (params.datePosted !== 'Any') body.append('datePosted', params.datePosted)
   if (params.minMatchScore !== 'Any') body.append('minMatchScore', params.minMatchScore)
 
-  const response = await fetch(`${API_BASE}/api/jobs/match`, { method: 'POST', body })
+  const response = await apiFetch(`${API_BASE}/api/jobs/match`, { method: 'POST', body })
   return readJson<JobMatchResponse>(response)
 }
 

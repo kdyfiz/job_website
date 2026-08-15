@@ -84,7 +84,9 @@ export function JobsPage() {
             </div>
             <JobSort value={params.sort} onChange={(sort) => apply({ ...params, sort })} />
           </div>
-          {loading && <LoadingState />}
+          {loading && (
+            <LoadingState message="Searching for jobs. The first request can take about a minute if the API is waking up." />
+          )}
           {!loading && error && <ErrorState message={error} />}
           {!loading && !error && results && results.jobs.length === 0 && <EmptyState />}
           {!loading && !error && results && results.jobs.length > 0 && <JobList jobs={results.jobs} />}

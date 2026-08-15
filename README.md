@@ -157,14 +157,34 @@ Coverage includes matching, CV validation/extraction, search, and API integratio
 
 ## Deployment
 
-**Do not use a paid host.** Re-check current free-tier terms before deploying.
+**Do not use a paid host.** Re-check current free-tier terms before deploying. No credit card is required for this path.
 
-Suggested RM0 path:
+### 1. API — Render Free
 
-- Frontend: Cloudflare Pages (Vite, output `dist`, SPA redirects). No credit card for the free plan.
-- Backend: keep local until you explicitly approve a public host. Render Free can run ASP.NET Core without a card today, but it sleeps after 15 minutes idle, cold-starts ~1 minute, and extra bandwidth can suspend the service if no payment method exists. Render’s free Postgres expires in 30 days — JobScout does not use it.
+1. Sign up at [dashboard.render.com/register](https://dashboard.render.com/register) with GitHub. Skip any paid plan.
+2. **New + → Blueprint**. Connect `kdyfiz/job_website` and apply `render.yaml`.
+   Or **New + → Web Service**, connect the same repo, then:
+   - Language: **Docker**
+   - Dockerfile path: `backend/Dockerfile`
+   - Instance type: **Free**
+   - Health check path: `/api/health`
+3. Do **not** create a Render Postgres database.
+4. Copy the API URL, e.g. `https://jobscout-api.onrender.com`.
 
-This repository is **not** deployed as part of V1 scaffolding.
+Render Free sleeps after 15 minutes idle. The next request can take about a minute. Extra bandwidth can suspend the service if no payment method exists.
+
+### 2. Frontend — Cloudflare Pages
+
+1. Sign up at [dash.cloudflare.com](https://dash.cloudflare.com). No credit card for the free plan.
+2. **Workers & Pages → Create → Pages → Import an existing Git repository**.
+3. Select `kdyfiz/job_website` and use:
+   - Root directory: `frontend`
+   - Build command: `npm run build`
+   - Build output directory: `dist`
+   - Environment variable: `VITE_API_BASE_URL` = your Render API URL (no trailing slash)
+4. Deploy. The site URL looks like `https://jobscout.pages.dev`.
+
+`frontend/public/_redirects` keeps React Router paths working. CORS already allows `*.pages.dev`.
 
 ## Docker
 

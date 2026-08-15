@@ -24,7 +24,7 @@ export function MatchPage() {
     }
 
     setError(null)
-    setLoadingMessage('Reading your CV...')
+    setLoadingMessage('Reading your CV. The first request can take about a minute if the API is waking up.')
     try {
       await new Promise((resolve) => setTimeout(resolve, 250))
       setLoadingMessage('Matching your skills with available jobs...')
