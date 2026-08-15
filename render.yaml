@@ -10,3 +10,9 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      - key: DOTNET_HOSTBUILDER_RELOADCONFIGONCHANGE
+        value: "false"
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+      - key: DOTNET_EnableDiagnostics
+        value: "0"
