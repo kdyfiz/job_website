@@ -20,8 +20,27 @@ public static class DependencyInjection
         services.Configure<CvOptions>(configuration.GetSection(CvOptions.SectionName));
         services.Configure<CorsSettings>(configuration.GetSection(CorsSettings.SectionName));
 
+        services.Configure<JobSearchOptions>(configuration.GetSection(JobSearchOptions.SectionName));
+
         services.AddSingleton(SkillCatalog.LoadFromEmbeddedResource());
-        services.AddSingleton<IJobSearchProvider, DemoJobSearchProvider>();
+        services.AddSingleton<DemoJobSearchProvider>();
+
+        var useLiveListings = configuration.GetValue($"{JobSearchOptions.SectionName}:UseLiveListings", true);
+        if (useLiveListings)
+        {
+            services.AddHttpClient<HimalayasJobSearchProvider>(client =>
+            {
+                client.BaseAddress = new Uri("https://himalayas.app");
+                client.Timeout = TimeSpan.FromSeconds(15);
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(
+                    "JobScout/1.0 (portfolio; +https://github.com/kdyfiz/job_website)");
+            });
+            services.AddScoped<IJobSearchProvider, CompositeJobSearchProvider>();
+        }
+        else
+        {
+            services.AddSingleton<IJobSearchProvider>(sp => sp.GetRequiredService<DemoJobSearchProvider>());
+        }
         services.AddSingleton<IPdfTextExtractor, DocnetPdfTextExtractor>();
         services.AddSingleton<ISkillExtractor, SkillExtractor>();
         services.AddSingleton<IMatchEngine, MatchEngine>();

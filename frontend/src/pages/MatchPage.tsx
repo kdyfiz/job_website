@@ -92,8 +92,10 @@ export function MatchPage() {
               <h2 className="text-xl font-semibold tracking-tight text-ink">Recommended jobs</h2>
               <p className="text-sm text-muted">Sorted by estimated match</p>
             </div>
-            {result.results.usingDemoData && (
+            {result.results.usingDemoData ? (
               <p className="notice">Recommended jobs below are demo data, not live listings.</p>
+            ) : (
+              <p className="notice">Recommended jobs are remote listings from Himalayas. Apply on the original posting.</p>
             )}
             {result.results.jobs.length === 0 ? (
               <EmptyState title="No recommended jobs.">

@@ -75,7 +75,8 @@ public sealed class JobMatchService : IJobMatchService
                 Total = matches.Count,
                 Query = request.Query?.Trim() ?? string.Empty,
                 Location = request.Location?.Trim(),
-                UsingDemoData = string.Equals(_provider.SourceName, "Demo", StringComparison.OrdinalIgnoreCase),
+                UsingDemoData = matches.Count == 0 || matches.All(match =>
+                    string.Equals(match.Job.Source, "Demo", StringComparison.OrdinalIgnoreCase)),
                 Jobs = matches.Select(match => JobMapper.ToResponse(match.Job, match)).ToList()
             }
         };

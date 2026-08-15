@@ -55,7 +55,7 @@ Do not present demo listings as live jobs.
  Job Search Service       CV Service
         │                     │
         ▼                     ▼
- Demo Job Provider       PDF text extraction
+ Himalayas + demo fallback  PDF text extraction
         │                     │
         └──────────┬──────────┘
                    ▼
@@ -70,7 +70,7 @@ There is **no database** in V1. Firebase is not used.
 ## How it works
 
 1. The browser calls the ASP.NET Core API.
-2. `IJobSearchProvider` returns jobs. V1 uses `DemoJobSearchProvider`.
+2. `IJobSearchProvider` returns jobs. Live search uses the free Himalayas JSON API; demo jobs are the fallback.
 3. Results are normalized to a shared `Job` model.
 4. The UI shows cards and details. Apply on the original source — or, for demo rows, read the demo-data note.
 
@@ -87,7 +87,7 @@ PDF text extraction uses **Docnet.Core** (MIT, PDFium). The historical PdfPig Nu
 
 ## Job search
 
-V1 uses **demo data**, labelled in the UI. Live Malaysia job APIs that are free, keyless, and safe to use were not assumed. The provider interface allows a later swap without rewriting the API.
+Search uses the **Himalayas** public jobs API (`https://himalayas.app/jobs/api/search`). No API key and no paid plan. Those listings are mostly **remote / worldwide**, not JobStreet-style on-site Malaysia ads. If Himalayas is down or returns nothing, the API falls back to labelled demo jobs.
 
 Do not scrape sites that require login, CAPTCHA, or forbid automated access.
 
@@ -208,7 +208,7 @@ docker compose up --build
 
 ## Limitations
 
-- **Job data:** V1 is demo data. Availability depends on the original source when a live provider is added.
+- **Job data:** Live results come from Himalayas remote listings. If that API fails, labelled demo jobs are shown instead. Availability must be checked on the original posting.
 - **Match score:** An estimate from detected CV text and listing fields. Not a hiring guarantee.
 - **CV extraction:** Fails for image-only or scanned PDFs.
 - **External sources:** JobScout does not control third-party listings.
@@ -218,7 +218,6 @@ docker compose up --build
 
 Not in V1:
 
-- A live free job provider (only if still free and ToS-safe)
 - Saved jobs, alerts, accounts
 - Optional AI (would need an explicit cost decision first)
 - Firebase Firestore if persistence is actually required

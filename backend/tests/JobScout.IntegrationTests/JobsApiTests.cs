@@ -3,11 +3,10 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using JobScout.Application.DTOs;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace JobScout.IntegrationTests;
 
-public class JobsApiTests : IClassFixture<WebApplicationFactory<Program>>
+public class JobsApiTests : IClassFixture<JobsApiFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -17,7 +16,7 @@ public class JobsApiTests : IClassFixture<WebApplicationFactory<Program>>
 
     private readonly HttpClient _client;
 
-    public JobsApiTests(WebApplicationFactory<Program> factory)
+    public JobsApiTests(JobsApiFactory factory)
     {
         _client = factory.CreateClient();
     }

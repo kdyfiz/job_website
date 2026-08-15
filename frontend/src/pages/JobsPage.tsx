@@ -65,11 +65,15 @@ export function JobsPage() {
         <SearchForm value={params} onChange={setParams} onSubmit={apply} compact />
       </div>
 
-      {results?.usingDemoData && (
+      {results?.usingDemoData ? (
         <p className="notice mt-4">
           These results are labelled demo data. They are sample roles for the product, not live vacancies.
         </p>
-      )}
+      ) : results ? (
+        <p className="notice mt-4">
+          Live listings are remote roles from Himalayas (free public API). They are not JobStreet Malaysia ads. Apply on the original posting.
+        </p>
+      ) : null}
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[260px_1fr]">
         <JobFilters value={params} onChange={apply} />
