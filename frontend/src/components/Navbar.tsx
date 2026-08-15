@@ -5,7 +5,17 @@ import { Logo } from './Logo'
 const links = [
   { to: '/', label: 'Search', match: (path: string) => path === '/' || path.startsWith('/jobs') },
   { to: '/about', label: 'About', match: (path: string) => path === '/about' },
+  { to: '/match', label: 'Match CV', match: (path: string) => path === '/match' },
 ]
+
+function linkClass(active: boolean, mobile = false) {
+  if (mobile) {
+    return active ? 'bg-brand text-white' : 'text-ink'
+  }
+  return active
+    ? 'btn-primary h-10 px-4'
+    : 'rounded-full px-3.5 py-1.5 text-muted no-underline transition hover:bg-white hover:text-ink'
+}
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
@@ -28,26 +38,13 @@ export function Navbar() {
           </span>
         </Link>
 
-        <div className="hidden items-center gap-2 md:flex">
-          <nav aria-label="Primary" className="flex items-center gap-1 text-sm font-medium">
-            {links.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                className={() =>
-                  `rounded-full px-3.5 py-1.5 no-underline transition ${
-                    link.match(pathname) ? 'bg-brand-soft text-brand-dark' : 'text-muted hover:bg-white hover:text-ink'
-                  }`
-                }
-              >
-                {link.label}
-              </NavLink>
-            ))}
-          </nav>
-          <Link to="/match" className="btn-primary h-10 px-4">
-            Match CV
-          </Link>
-        </div>
+        <nav aria-label="Primary" className="hidden items-center gap-1 text-sm font-medium md:flex">
+          {links.map((link) => (
+            <NavLink key={link.to} to={link.to} className={linkClass(link.match(pathname))}>
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
 
         <button
           type="button"
@@ -67,16 +64,12 @@ export function Navbar() {
 
       {open && (
         <nav id="mobile-nav" className="border-t border-line bg-paper px-4 py-3 md:hidden">
-          {[...links, { to: '/match', label: 'Match CV', match: (path: string) => path === '/match' }].map((link) => (
+          {links.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               onClick={() => setOpen(false)}
-              className={() =>
-                `block rounded-lg px-3 py-2.5 text-sm font-medium no-underline ${
-                  link.match(pathname) ? 'bg-brand-soft text-brand-dark' : 'text-ink'
-                }`
-              }
+              className={`block rounded-lg px-3 py-2.5 text-sm font-medium no-underline ${linkClass(link.match(pathname), true)}`}
             >
               {link.label}
             </NavLink>

@@ -13,14 +13,20 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''
 const API_TIMEOUT_MS = 90_000
 
 async function apiFetch(input: string, init?: RequestInit): Promise<Response> {
-  try {
-    return await fetch(input, { ...init, signal: AbortSignal.timeout(API_TIMEOUT_MS) })
-  } catch (error) {
-    if (error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
-      throw new Error('The server is waking up. Please try the search again in a moment.')
+  let lastError: unknown
+
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      return await fetch(input, { ...init, signal: AbortSignal.timeout(API_TIMEOUT_MS) })
+    } catch (error) {
+      lastError = error
     }
-    throw new Error('Could not reach JobScout. Please try again.')
   }
+
+  if (lastError instanceof DOMException && (lastError.name === 'TimeoutError' || lastError.name === 'AbortError')) {
+    throw new Error('The server is waking up. Please try the search again in a moment.')
+  }
+  throw new Error('Could not reach JobScout. Please try again.')
 }
 
 async function readJson<T>(response: Response): Promise<T> {
